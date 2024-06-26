@@ -6,24 +6,35 @@ import {
   Patch,
   Param,
   Delete,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
+
 import { UserService } from '../application/user.service';
-import { CreateUserDto } from '../application/dto/create-user.dto';
-import { UpdateUserDto } from '../application/dto/update-user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ResponseUserDto,
+} from '../application/dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<ResponseUserDto> {
+    try {
+      const user = await this.userService.create(createUserDto);
+      return new ResponseUserDto(user);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
+  // @Get()
+  // async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+  //   return this.userService.findAll(page, limit);
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

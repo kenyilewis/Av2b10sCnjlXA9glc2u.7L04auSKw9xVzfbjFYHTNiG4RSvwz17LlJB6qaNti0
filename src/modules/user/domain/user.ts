@@ -7,7 +7,15 @@ export class User {
   private _updatedAt: Date;
   private _deletedAt?: Date | null;
 
-  constructor(user: User) {
+  constructor(user: {
+    id?: string;
+    name: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date | null;
+  }) {
     this._id = user.id;
     this._name = user.name;
     this._email = user.email;
@@ -56,10 +64,5 @@ export class User {
     const now = new Date();
     this._deletedAt = now;
     this._updatedAt = now;
-  }
-
-  restore(): void {
-    this._deletedAt = null;
-    this._updatedAt = new Date();
   }
 }
