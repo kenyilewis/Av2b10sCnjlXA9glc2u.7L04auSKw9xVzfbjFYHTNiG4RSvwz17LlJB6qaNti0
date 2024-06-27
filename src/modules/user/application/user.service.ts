@@ -1,70 +1,89 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-
-import { CreateUserDto, UpdateUserDto } from './dto';
-import { User } from '../domain/user';
 import { UserRepository } from '../domain/user.repository';
+import { CreateUserDto, UpdateUserDto, ResponseUserDto } from './dto';
+import { User } from '../domain/user';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @Inject('UserRepository')
-    private readonly userRepository: UserRepository,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const { email, password, name } = createUserDto;
-    const existingUser = await this.userRepository.emailExists(email);
+  async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
+    const { email, password, username } = createUserDto;
+    const existingUser = await this.userRepository.userEmailExists(email);
     if (existingUser) {
       throw new ConflictException('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
+      username,
       email,
       password: hashedPassword,
-      name,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    return this.userRepository.createUser(user);
+    const createdUser = await this.userRepository.createUser(user);
+    return this.toResponseDto(createdUser);
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<ResponseUserDto> {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { email, password, username}= updateUserDto;
+    if (email) {
+      const existingUser = await this.userRepository.userEmailExists(email);
+      if (existingUser && existingUser.id !== id) {
+        throw new ConflictException('Email already in use');
+      }
+
+      user.updateEmail(email);
+    }
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.updatePassword(hashedPassword);
+    }
+
+    if (username) {
+      user.updateUsername(username);
+    }
+
+    const updatedUser = await this.userRepository.updateUser(user);
+    return this.toResponseDto(updatedUser);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async getUserById(id: string): Promise<ResponseUserDto> {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return this.toResponseDto(user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async deleteUser(id: string): Promise<void> {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    user.delete();
+    await this.userRepository.deleteUser(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  private toResponseDto(user: User): ResponseUserDto {
+    return new ResponseUserDto(user);
   }
 }
-//   async execute(createUserDto: CreateUserDto): Promise<User> {
-//     const { email, password } = createUserDto;
-//
-//     const existingUser = await this.userRepository.emailExists(email);
-//     if (existingUser) {
-//       throw new ConflictException('User already exists');
-//     }
-//
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const user = new User({
-//       email,
-//       password: hashedPassword,
-//       status: UserStatus.ACTIVE,
-//       createdAt: new Date(),
-//       updatedAt: new Date(),
-//     });
-//
-//     return this.userRepository.create(user);
-//   }
-// }
