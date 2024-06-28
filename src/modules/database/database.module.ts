@@ -2,14 +2,14 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import databaseConfig from '../config/config';
+import appConfig from '../config/config';
 import { mongooseConfig } from './odm/odm.config';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [databaseConfig],
+      load: [appConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
