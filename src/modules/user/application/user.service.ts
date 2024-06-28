@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,7 +12,10 @@ import { User } from '../domain/user';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
+  ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     const { email, password, username } = createUserDto;
@@ -25,8 +29,6 @@ export class UserService {
       username,
       email,
       password: hashedPassword,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     const createdUser = await this.userRepository.createUser(user);
@@ -42,7 +44,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const { email, password, username}= updateUserDto;
+    const { email, password, username } = updateUserDto;
     if (email) {
       const existingUser = await this.userRepository.userEmailExists(email);
       if (existingUser && existingUser.id !== id) {
@@ -68,7 +70,7 @@ export class UserService {
   async getUserById(id: string): Promise<ResponseUserDto> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     return this.toResponseDto(user);
   }
@@ -80,7 +82,7 @@ export class UserService {
     }
 
     user.delete();
-    await this.userRepository.deleteUser(id);
+    await this.userRepository.updateUser(user);
   }
 
   private toResponseDto(user: User): ResponseUserDto {

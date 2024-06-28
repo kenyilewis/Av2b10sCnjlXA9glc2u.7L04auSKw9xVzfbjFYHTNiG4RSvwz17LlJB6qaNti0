@@ -3,18 +3,18 @@ export class User {
   private _username: string;
   private _email: string;
   private _password: string;
-  private readonly _createdAt: Date;
-  private _updatedAt: Date;
-  private _deletedAt?: Date | null;
+  private readonly _createdAt?: Date;
+  private _updatedAt?: Date;
+  private _isDeleted?: boolean;
 
   constructor(user: {
     id?: string;
     username: string;
     email: string;
     password: string;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date | null;
+    createdAt?: Date;
+    updatedAt?: Date;
+    isDeleted?: boolean;
   }) {
     this._id = user.id;
     this._username = user.username;
@@ -22,7 +22,7 @@ export class User {
     this._password = user.password;
     this._createdAt = user.createdAt;
     this._updatedAt = user.updatedAt;
-    this._deletedAt = user.deletedAt ?? null;
+    this._isDeleted = user.isDeleted ?? false;
   }
 
   get id(): string {
@@ -49,8 +49,8 @@ export class User {
     return this._updatedAt;
   }
 
-  get deletedAt(): Date | null {
-    return this._deletedAt;
+  get isDeleted(): boolean {
+    return this._isDeleted;
   }
 
   updateEmail(email: string): void {
@@ -69,8 +69,7 @@ export class User {
   }
 
   delete(): void {
-    const now = new Date();
-    this._deletedAt = now;
-    this._updatedAt = now;
+    this._isDeleted = true;
+    this._updatedAt = new Date();
   }
 }

@@ -1,15 +1,14 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
+  Get,
   Delete,
-  HttpStatus,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-
 import { UserService } from '../application/user.service';
 import {
   CreateUserDto,
@@ -17,37 +16,49 @@ import {
   ResponseUserDto,
 } from '../application/dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<ResponseUserDto> {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ResponseUserDto> {
     try {
-      const user = await this.userService.create(createUserDto);
-      return new ResponseUserDto(user);
+      return this.userService.createUser(createUserDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
-  // @Get()
-  // async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-  //   return this.userService.findAll(page, limit);
-  // }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Put(':id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<ResponseUserDto> {
+    try {
+      return this.userService.updateUser(id, updateUserDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Get(':id')
+  async getUserById(@Param('id') id: string): Promise<ResponseUserDto> {
+    try {
+      return this.userService.getUserById(id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
+    try {
+      await this.userService.deleteUser(id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 }
