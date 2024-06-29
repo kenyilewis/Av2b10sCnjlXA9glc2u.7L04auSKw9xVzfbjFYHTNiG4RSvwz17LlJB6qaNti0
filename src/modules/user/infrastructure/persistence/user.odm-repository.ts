@@ -71,4 +71,17 @@ export class UserOdmRepository implements UserRepository {
       isDeleted: user.isDeleted,
     };
   }
+
+  //Auth method
+  async findUserToAuth(email: string): Promise<User | null> {
+    const userDocument = await this.userModel
+      .findOne({ email })
+      .where({ isDeleted: false })
+      .exec();
+
+    if (!userDocument) {
+      return null;
+    }
+    return this.toDomain(userDocument);
+  }
 }
