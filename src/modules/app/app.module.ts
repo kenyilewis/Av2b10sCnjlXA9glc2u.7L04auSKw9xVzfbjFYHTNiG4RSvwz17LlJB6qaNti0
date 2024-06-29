@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule, DatabaseModule, AuthModule } from './modules';
+import { UserModule, DatabaseModule, AuthModule } from '../index';
 
 @Module({
   imports: [DatabaseModule, UserModule, AuthModule],
