@@ -18,6 +18,7 @@ import {
 } from '../application/dto';
 import { CustomUserGuard } from '../../auth/guards/custom-user.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
+import { MongoIdPipe } from '../../common/validations/mongo-id.pipe';
 
 @Controller('users')
 export class UserController {
@@ -37,7 +38,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Put(':id')
   async updateUser(
-    @Param('id') id: string,
+    @Param('id', MongoIdPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
     try {
@@ -49,7 +50,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<ResponseUserDto> {
+  async getUserById(
+    @Param('id', MongoIdPipe) id: string,
+  ): Promise<ResponseUserDto> {
     try {
       return this.userService.getUserById(id);
     } catch (error) {
@@ -59,7 +62,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
+  async deleteUser(
+    @Param('id', MongoIdPipe) id: string,
+  ): Promise<{ message: string }> {
     try {
       await this.userService.deleteUser(id);
       return { message: 'User deleted successfully' };
