@@ -34,13 +34,23 @@ export class UserOdmRepository implements UserRepository {
     return this.toDomain(updatedUser);
   }
 
+  //Auth method
+  async findUserToAuth(email: string): Promise<User | null> {
+    const userDocument = await this.userModel
+      .findOne({ email })
+      .where({ isDeleted: false })
+      .exec();
+
+    return userDocument ? this.toDomain(userDocument) : null;
+  }
+
   async findById(id: string): Promise<User | null> {
     const userDocument = await this.userModel
       .findById(id)
       .where({ isDeleted: false })
       .exec();
 
-    return this.toDomain(userDocument);
+    return userDocument ? this.toDomain(userDocument) : null;
   }
 
   private toDomain(userDocument: UserDocument): User {
@@ -62,15 +72,5 @@ export class UserOdmRepository implements UserRepository {
       password: user.password,
       isDeleted: user.isDeleted,
     };
-  }
-
-  //Auth method
-  async findUserToAuth(email: string): Promise<User | null> {
-    const userDocument = await this.userModel
-      .findOne({ email })
-      .where({ isDeleted: false })
-      .exec();
-
-    return this.toDomain(userDocument);
   }
 }
