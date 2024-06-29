@@ -35,20 +35,12 @@ export class UserOdmRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    try {
-      const userDocument = await this.userModel
-        .findById(id)
-        .where({ isDeleted: false })
-        .exec();
-      if (!userDocument) {
-        return null;
-      }
+    const userDocument = await this.userModel
+      .findById(id)
+      .where({ isDeleted: false })
+      .exec();
 
-      return this.toDomain(userDocument);
-    } catch (error) {
-      console.info('Error in user findById', error.message);
-      return null;
-    }
+    return this.toDomain(userDocument);
   }
 
   private toDomain(userDocument: UserDocument): User {
@@ -79,9 +71,6 @@ export class UserOdmRepository implements UserRepository {
       .where({ isDeleted: false })
       .exec();
 
-    if (!userDocument) {
-      return null;
-    }
     return this.toDomain(userDocument);
   }
 }
