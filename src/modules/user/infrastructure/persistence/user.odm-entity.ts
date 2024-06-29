@@ -17,6 +17,6 @@ class UserDocument extends Document {
 }
 
 const UserSchema = SchemaFactory.createForClass(UserDocument);
-UserSchema.index({ isDeleted: 1, email: 1 }); // TODO: Add isDeleted in persistence layer
+UserSchema.index({ isDeleted: 1, email: 1 });
 
 export { UserSchema, UserDocument };

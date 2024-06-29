@@ -8,6 +8,7 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../application/user.service';
 import {
@@ -15,6 +16,8 @@ import {
   UpdateUserDto,
   ResponseUserDto,
 } from '../application/dto';
+import { CustomUserGuard } from '../../auth/guards/custom-user.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
 
 @Controller('users')
 export class UserController {
@@ -31,6 +34,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Put(':id')
   async updateUser(
     @Param('id') id: string,
@@ -43,6 +47,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Get(':id')
   async getUserById(@Param('id') id: string): Promise<ResponseUserDto> {
     try {
@@ -52,6 +57,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
     try {

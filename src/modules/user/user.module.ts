@@ -7,12 +7,14 @@ import {
   UserDocument,
 } from './infrastructure/persistence/user.odm-entity';
 import { UserOdmRepository } from './infrastructure/persistence/user.odm-repository';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: UserDocument.name, schema: UserSchema },
     ]),
+    AuthModule,
   ],
   controllers: [UserController],
   providers: [

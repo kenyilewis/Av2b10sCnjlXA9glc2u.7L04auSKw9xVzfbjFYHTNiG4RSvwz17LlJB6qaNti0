@@ -85,6 +85,10 @@ export class UserService {
     await this.userRepository.updateUser(user);
   }
 
+  async findUserToAuth(email: string): Promise<User> {
+    return this.userRepository.findUserToAuth(email);
+  }
+
   private toResponseDto(user: User): ResponseUserDto {
     return new ResponseUserDto(user);
   }
