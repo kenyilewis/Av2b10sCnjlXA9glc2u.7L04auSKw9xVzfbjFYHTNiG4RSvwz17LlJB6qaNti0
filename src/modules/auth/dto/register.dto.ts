@@ -1,12 +1,33 @@
-// src/modules/auth/dto/login.dto.ts
-export class LoginDto {
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+export class RegisterDto {
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsNotEmpty()
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  username: string;
 }
 
-// src/modules/auth/dto/register.dto.ts
-export class RegisterDto {
-  name: string;
+export class LoginResponseDto {
+  @IsString()
+  @IsNotEmpty()
+  accessToken: string;
+
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
-  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  refreshToken: string;
 }
