@@ -18,7 +18,6 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new AllExceptionsFilter());
-  await app.listen(3000);
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || '*',
