@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './modules/common/filters/all-exceptions.filter.ts';
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter());
+  await app.listen(3000);
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || '*',
