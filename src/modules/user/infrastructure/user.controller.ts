@@ -10,6 +10,8 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+
 import { UserService } from '../application/user.service';
 import {
   CreateUserDto,
@@ -18,12 +20,16 @@ import {
 } from '../application/dto';
 import { CustomUserGuard } from '../../auth/guards/custom-user.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
+import { MongoIdPipe } from '../../common/validations/mongo-id.pipe';
 
+@ApiTags('users')
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new user' })
   async createUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseUserDto> {
@@ -36,8 +42,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Put(':id')
+  @ApiOperation({ summary: 'Update a user' })
   async updateUser(
-    @Param('id') id: string,
+    @Param('id', MongoIdPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
     try {
@@ -49,7 +56,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<ResponseUserDto> {
+  @ApiOperation({ summary: 'Get a user by id' })
+  async getUserById(
+    @Param('id', MongoIdPipe) id: string,
+  ): Promise<ResponseUserDto> {
     try {
       return this.userService.getUserById(id);
     } catch (error) {
@@ -59,7 +69,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
+  @ApiOperation({ summary: 'Delete a user' })
+  async deleteUser(
+    @Param('id', MongoIdPipe) id: string,
+  ): Promise<{ message: string }> {
     try {
       await this.userService.deleteUser(id);
       return { message: 'User deleted successfully' };

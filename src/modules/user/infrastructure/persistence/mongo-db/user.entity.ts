@@ -12,7 +12,7 @@ class UserDocument extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ default: false })
+  @Prop({ default: false, index: true })
   isDeleted: boolean;
 }
 
