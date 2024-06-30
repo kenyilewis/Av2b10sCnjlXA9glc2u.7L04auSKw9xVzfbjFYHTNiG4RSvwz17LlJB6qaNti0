@@ -10,7 +10,7 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { UserService } from '../application/user.service';
 import {
@@ -29,6 +29,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new user' })
   async createUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseUserDto> {
@@ -41,6 +42,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Put(':id')
+  @ApiOperation({ summary: 'Update a user' })
   async updateUser(
     @Param('id', MongoIdPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -54,6 +56,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Get(':id')
+  @ApiOperation({ summary: 'Get a user by id' })
   async getUserById(
     @Param('id', MongoIdPipe) id: string,
   ): Promise<ResponseUserDto> {
@@ -66,6 +69,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, CustomUserGuard)
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
   async deleteUser(
     @Param('id', MongoIdPipe) id: string,
   ): Promise<{ message: string }> {
