@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { UserRepository } from '../../domain/user.repository';
-import { User } from '../../domain/user';
-import { UserDocument } from './user.odm-entity';
+import { IUserRepository } from '../../../domain/user.repository';
+import { User } from '../../../domain/user';
+import { UserDocument } from './user.entity';
 
 @Injectable()
-export class UserOdmRepository implements UserRepository {
+export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(UserDocument.name)
     private readonly userModel: Model<UserDocument>,

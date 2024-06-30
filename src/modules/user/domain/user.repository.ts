@@ -1,6 +1,6 @@
 import { User } from './user';
 
-export interface UserRepository {
+export interface IUserRepository {
   userEmailExists(email: string): Promise<User | null>;
   createUser(user: User): Promise<User>;
   updateUser(user: User): Promise<User>;

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-import { UserRepository } from '../domain/user.repository';
+import { IUserRepository } from '../domain/user.repository';
 import { CreateUserDto, UpdateUserDto, ResponseUserDto } from './dto';
 import { User } from '../domain/user';
 
@@ -15,7 +15,7 @@ import { User } from '../domain/user';
 export class UserService {
   constructor(
     @Inject('UserRepository')
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {

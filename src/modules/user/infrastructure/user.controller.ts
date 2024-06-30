@@ -10,6 +10,8 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
 import { UserService } from '../application/user.service';
 import {
   CreateUserDto,
@@ -20,6 +22,8 @@ import { CustomUserGuard } from '../../auth/guards/custom-user.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
 import { MongoIdPipe } from '../../common/validations/mongo-id.pipe';
 
+@ApiTags('users')
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
