@@ -29,7 +29,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const errorResponse = {
       statusCode: status,
-      timestamp: new Date().toISOString(),
+      success: false,
       path: request.url,
       method: request.method,
       error,

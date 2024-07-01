@@ -91,9 +91,14 @@ export class UserService {
     }
   }
 
-  async findUserToAuth(email: string): Promise<User> {
+  async findUserToAuth(
+    email: string,
+  ): Promise<{ email: string; password: string; id: string } | null> {
     try {
-      return this.userRepository.findUserToAuth(email);
+      const user = await this.userRepository.findUserToAuth(email);
+      return user
+        ? { email: user.email, password: user.password, id: user.id }
+        : null;
     } catch (error) {
       console.error('Error finding user to auth', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error finding user');
