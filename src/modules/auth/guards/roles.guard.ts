@@ -1,9 +1,14 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { Roles } from "../../common/enums/roles.enum";
+import { Roles } from '../../common/enums/roles.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,13 +27,15 @@ export class RolesGuard implements CanActivate {
     }
 
     const decoded = this.jwtService.verify(token);
-    const hasRole = () => decoded.roles.some((role: Roles) => roles.includes(role));
-    const isAdministrator = decoded.roles.includes(Roles.ADMIN);
+    const hasRole = () =>
+      decoded.roles.some((role: Roles) => roles.includes(role));
 
-    if (isAdministrator || (hasRole() && decoded.userId === request.params.id)) {
+    if (hasRole()) {
       return true;
     }
 
-    throw new ForbiddenException('You do not have permission to perform this action');
+    throw new ForbiddenException(
+      'You do not have permission to perform this action',
+    );
   }
 }
