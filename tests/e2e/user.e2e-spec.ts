@@ -110,7 +110,6 @@ describe('UserController (e2e)', () => {
       email: `testUpdate${Math.floor(Math.random() * 10000)}@admin.com`,
       username: 'adminupdated',
     };
-    console.log('adminToken', adminToken);
     await request(app.getHttpServer())
       .put(`/users/${userId}`)
       .set('Authorization', `Bearer ${adminToken}`)
