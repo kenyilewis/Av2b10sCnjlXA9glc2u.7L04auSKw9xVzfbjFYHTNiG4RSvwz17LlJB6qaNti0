@@ -36,7 +36,7 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.createUser(createUserDto);
+      return await this.userService.createUser(createUserDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -51,7 +51,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.updateUser(id, updateUserDto);
+      return await this.userService.updateUser(id, updateUserDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -65,7 +65,7 @@ export class UserController {
     @Param('id', MongoIdPipe) id: string,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.getUserById(id);
+      return await this.userService.getUserById(id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
