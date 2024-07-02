@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { IUserRepository } from '../domain/user.repository';
 import { CreateUserDto, UpdateUserDto, ResponseUserDto } from './dto';
 import { User } from '../domain/user';
+import { Roles } from "../../common/enums/roles.enum";
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
         username,
         email,
         password: hashedPassword,
+        roles: [Roles.USER],
       });
 
       const createdUser = await this.userRepository.createUser(user);
@@ -45,6 +47,7 @@ export class UserService {
   ): Promise<ResponseUserDto> {
     try {
       const user = await this.userExists(id);
+      // TODO: Refactor to add roles to user
       const { email, password, username } = updateUserDto;
       if (email) {
         await this.ensureUserDoesNotExist(email);

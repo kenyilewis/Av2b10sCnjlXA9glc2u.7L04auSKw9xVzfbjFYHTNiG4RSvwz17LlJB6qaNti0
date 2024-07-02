@@ -18,9 +18,11 @@ import {
   UpdateUserDto,
   ResponseUserDto,
 } from '../application/dto';
-import { CustomUserGuard } from '../../auth/guards/custom-user.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
 import { MongoIdPipe } from '../../common/validations/mongo-id.pipe';
+import { Roles } from "../../common/enums/roles.enum";
+import { RolesDecorator } from "../../auth/decorators/roles.decorator";
 
 @ApiTags('users')
 @ApiBearerAuth('access-token')
@@ -40,7 +42,8 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, CustomUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @RolesDecorator(Roles.ADMIN, Roles.USER)
   @Put(':id')
   @ApiOperation({ summary: 'Update a user' })
   async updateUser(
@@ -54,7 +57,8 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, CustomUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @RolesDecorator(Roles.ADMIN, Roles.USER)
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by id' })
   async getUserById(
@@ -67,7 +71,8 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, CustomUserGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @RolesDecorator(Roles.ADMIN, Roles.USER)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user' })
   async deleteUser(
