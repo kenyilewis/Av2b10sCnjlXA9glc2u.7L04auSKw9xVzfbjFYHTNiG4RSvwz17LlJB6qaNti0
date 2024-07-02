@@ -1,15 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import * as request from 'supertest';
-import { ConfigService } from '@nestjs/config';
-import { AppModule } from '../../src/modules/app/app.module';
+
+import { AuthModule, UserModule } from '../../src/modules';
+import appConfig from '../../src/modules/config/config';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        ConfigModule.forRoot({
+          load: [appConfig],
+          isGlobal: true,
+        }),
+        MongooseModule.forRootAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => ({
+            uri: configService.get<string>('config.mongoDB.uri'),
+          }),
+        }),
+        AuthModule,
+        UserModule,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -23,19 +40,22 @@ describe('AuthController (e2e)', () => {
 
   it('/auth/login (POST) - success', async () => {
     const user = {
-      email: `testAuht${Math.floor(Math.random() * 10000)}@example.com`,
+      email: `testAuth${Math.floor(Math.random() * 10000)}@example.com`,
       password: '123456',
       username: `testAuth${Math.floor(Math.random() * 10000)}`,
     };
 
-    await request(app.getHttpServer()).post('/users').send(user).expect(201);
+    await request(app.getHttpServer())
+      .post('/users')
+      .send(user)
+      .expect(HttpStatus.CREATED);
 
     const loginDto = { email: user.email, password: user.password };
 
     const response = await request(app.getHttpServer())
       .post('/auth/login')
       .send(loginDto)
-      .expect(200);
+      .expect(HttpStatus.CREATED);
 
     expect(response.body).toHaveProperty('accessToken');
   });
@@ -49,8 +69,9 @@ describe('AuthController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
       .send(loginDto)
-      .expect(401);
+      .expect(HttpStatus.UNAUTHORIZED);
 
+    // Verifica que el mensaje de error sea el esperado
     expect(response.body.message).toEqual('Invalid credentials');
   });
 });

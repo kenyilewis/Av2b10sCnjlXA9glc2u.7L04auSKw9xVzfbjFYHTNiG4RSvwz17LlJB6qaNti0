@@ -21,15 +21,15 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
-      const { email, password, username } = createUserDto;
+      const { email, password, username, roles } = createUserDto;
       await this.ensureUserDoesNotExist(email);
-
+      const userRoles = roles || [Roles.USER];
       const hashedPassword = await this.hashPassword(password);
       const user = new User({
         username,
         email,
         password: hashedPassword,
-        roles: [Roles.USER],
+        roles: userRoles,
       });
 
       const createdUser = await this.userRepository.createUser(user);
