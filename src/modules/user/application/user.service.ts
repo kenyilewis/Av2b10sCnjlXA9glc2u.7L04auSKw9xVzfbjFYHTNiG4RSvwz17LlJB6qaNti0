@@ -96,7 +96,12 @@ export class UserService {
 
   async findUserToAuth(
     email: string,
-  ): Promise<{ email: string; password: string; id: string, roles: Roles[] } | null> {
+  ): Promise<{
+    email: string;
+    password: string;
+    id: string;
+    roles: Roles[];
+  } | null> {
     try {
       const user = await this.userRepository.findUserToAuth(email);
       return user
