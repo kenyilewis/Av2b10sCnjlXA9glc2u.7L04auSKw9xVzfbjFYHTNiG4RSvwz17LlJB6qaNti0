@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { IUserRepository } from '../domain/user.repository';
 import { CreateUserDto, UpdateUserDto, ResponseUserDto } from './dto';
 import { User } from '../domain/user';
-import { Roles } from "../../common/enums/roles.enum";
+import { Roles } from '../../common/enums/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -21,15 +21,15 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     try {
-      const { email, password, username } = createUserDto;
+      const { email, password, username, roles } = createUserDto;
       await this.ensureUserDoesNotExist(email);
-
+      const userRoles = roles || [Roles.USER];
       const hashedPassword = await this.hashPassword(password);
       const user = new User({
         username,
         email,
         password: hashedPassword,
-        roles: [Roles.USER],
+        roles: userRoles,
       });
 
       const createdUser = await this.userRepository.createUser(user);
@@ -94,9 +94,22 @@ export class UserService {
     }
   }
 
-  async findUserToAuth(email: string): Promise<User> {
+  async findUserToAuth(email: string): Promise<{
+    email: string;
+    password: string;
+    id: string;
+    roles: Roles[];
+  } | null> {
     try {
-      return this.userRepository.findUserToAuth(email);
+      const user = await this.userRepository.findUserToAuth(email);
+      return user
+        ? {
+            email: user.email,
+            password: user.password,
+            id: user.id,
+            roles: user.roles,
+          }
+        : null;
     } catch (error) {
       console.error('Error finding user to auth', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error finding user');

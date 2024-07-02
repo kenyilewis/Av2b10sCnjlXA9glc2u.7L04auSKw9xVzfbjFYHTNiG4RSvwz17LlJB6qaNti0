@@ -27,9 +27,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
             },
           };
 
+    // TODO Add this structure in controllers responses
     const errorResponse = {
       statusCode: status,
-      timestamp: new Date().toISOString(),
+      success: false,
       path: request.url,
       method: request.method,
       error,

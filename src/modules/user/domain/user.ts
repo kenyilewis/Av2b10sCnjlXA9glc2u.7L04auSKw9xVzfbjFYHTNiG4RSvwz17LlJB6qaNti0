@@ -18,7 +18,7 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
     isDeleted?: boolean;
-    roles: Roles[];
+    roles?: Roles[];
   }) {
     this._id = user.id;
     this._username = user.username;
@@ -27,7 +27,7 @@ export class User {
     this._createdAt = user.createdAt;
     this._updatedAt = user.updatedAt;
     this._isDeleted = user.isDeleted ?? false;
-    this._roles = user.roles;
+    this._roles = user.roles ?? [Roles.USER];
   }
 
   get id(): string {
