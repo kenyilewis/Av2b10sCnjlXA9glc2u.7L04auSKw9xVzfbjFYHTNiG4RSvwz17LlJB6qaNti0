@@ -27,6 +27,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             },
           };
 
+    // TODO Add this structure in controllers responses
     const errorResponse = {
       statusCode: status,
       success: false,

@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  HttpStatus,
-  HttpException,
-  Res,
-} from '@nestjs/common';
-import { Response } from 'express';
-
+import { Controller, Post, Body, HttpStatus, HttpException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,10 +10,13 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+  async login(@Body() loginDto: LoginDto): Promise<{
+    id: string,
+    email: string,
+    accessToken: string,
+  }> {
     try {
-      const data = await this.authService.login(loginDto);
-      return res.status(HttpStatus.OK).json(data);
+      return this.authService.login(loginDto);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
     }
