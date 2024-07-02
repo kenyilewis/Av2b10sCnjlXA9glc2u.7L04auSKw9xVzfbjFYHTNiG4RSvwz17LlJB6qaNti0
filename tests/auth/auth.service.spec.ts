@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { UserService } from '../../src/modules/user/application/user.service';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { LoginDto } from '../../src/modules/auth/dto/login.dto';
+import { Roles } from "../../src/modules/common/enums/roles.enum";
 
 jest.mock('bcrypt');
 
@@ -65,6 +66,7 @@ describe('AuthService', () => {
         email: 'test@test.com',
         password:
           '$2b$10$.S.TKwq5otK3mgUCqegDWet8oVPFwCoR8estPHJ8fd6knwuOuGFmi',
+        roles: [Roles.USER]
       };
       jest.spyOn(userService, 'findUserToAuth').mockResolvedValue(user);
 
@@ -84,6 +86,7 @@ describe('AuthService', () => {
         email: 'test@test.com',
         password:
           '$2b$10$.S.TKwq5otK3mgUCqegDWet8oVPFwCoR8estPHJ8fd6knwuOuGFmi',
+        roles: [Roles.USER]
       };
       const token = 'fakeToken';
       jest.spyOn(userService, 'findUserToAuth').mockResolvedValue(user);
