@@ -96,11 +96,11 @@ export class UserService {
 
   async findUserToAuth(
     email: string,
-  ): Promise<{ email: string; password: string; id: string } | null> {
+  ): Promise<{ email: string; password: string; id: string, roles: Roles[] } | null> {
     try {
       const user = await this.userRepository.findUserToAuth(email);
       return user
-        ? { email: user.email, password: user.password, id: user.id }
+        ? { email: user.email, password: user.password, id: user.id, roles: user.roles}
         : null;
     } catch (error) {
       console.error('Error finding user to auth', JSON.stringify(error));
