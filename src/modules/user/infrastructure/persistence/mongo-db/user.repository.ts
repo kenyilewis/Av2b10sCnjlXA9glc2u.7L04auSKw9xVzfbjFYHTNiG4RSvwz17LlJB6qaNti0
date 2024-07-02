@@ -62,6 +62,7 @@ export class UserRepository implements IUserRepository {
       isDeleted: userDocument.isDeleted,
       createdAt: userDocument.get('createdAt'),
       updatedAt: userDocument.get('updatedAt'),
+      roles: userDocument.roles,
     });
   }
 
@@ -71,6 +72,7 @@ export class UserRepository implements IUserRepository {
       email: user.email,
       password: user.password,
       isDeleted: user.isDeleted,
+      roles: user.roles,
     };
   }
 }

@@ -1,3 +1,5 @@
+import { Roles } from "../../common/enums/roles.enum";
+
 export class User {
   private readonly _id?: string;
   private _username: string;
@@ -6,6 +8,7 @@ export class User {
   private readonly _createdAt?: Date;
   private _updatedAt?: Date;
   private _isDeleted?: boolean;
+  private _roles: Roles[];
 
   constructor(user: {
     id?: string;
@@ -15,6 +18,7 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
     isDeleted?: boolean;
+    roles: Roles[];
   }) {
     this._id = user.id;
     this._username = user.username;
@@ -23,6 +27,7 @@ export class User {
     this._createdAt = user.createdAt;
     this._updatedAt = user.updatedAt;
     this._isDeleted = user.isDeleted ?? false;
+    this._roles = user.roles;
   }
 
   get id(): string {
@@ -53,6 +58,10 @@ export class User {
     return this._isDeleted;
   }
 
+  get roles(): Roles[] {
+    return this._roles;
+  }
+
   updateEmail(email: string): void {
     this._email = email;
     this._updatedAt = new Date();
@@ -65,6 +74,11 @@ export class User {
 
   updateUsername(username: string): void {
     this._username = username;
+    this._updatedAt = new Date();
+  }
+
+  updateRoles(roles: Roles[]): void {  // Método para actualizar roles
+    this._roles = roles;
     this._updatedAt = new Date();
   }
 

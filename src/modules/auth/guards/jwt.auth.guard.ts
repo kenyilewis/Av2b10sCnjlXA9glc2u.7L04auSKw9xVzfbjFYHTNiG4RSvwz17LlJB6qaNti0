@@ -24,20 +24,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info, context: ExecutionContext) {
-    if (err || !user) {
-      this.logger.error(
-        `Authentication failed: ${info?.message || 'Unknown error'}`,
-      );
-      throw (
-        err ||
-        new UnauthorizedException('Authentication failed')
-      );
-    }
-    return user;
-  }
-
-  private extractTokenFromHeader(request): string | null {
+  private extractTokenFromHeader(request: { headers: { authorization: any; }; }): string | null {
     const authHeader = request.headers.authorization;
     if (!authHeader) {
       return null;
