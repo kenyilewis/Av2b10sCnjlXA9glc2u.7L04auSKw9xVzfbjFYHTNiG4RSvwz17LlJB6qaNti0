@@ -1,4 +1,10 @@
-import { Controller, Post, Body, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -11,9 +17,9 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   async login(@Body() loginDto: LoginDto): Promise<{
-    id: string,
-    email: string,
-    accessToken: string,
+    id: string;
+    email: string;
+    accessToken: string;
   }> {
     try {
       return this.authService.login(loginDto);

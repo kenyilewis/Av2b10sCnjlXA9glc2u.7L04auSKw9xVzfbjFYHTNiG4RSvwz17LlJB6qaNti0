@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { IUserRepository } from '../domain/user.repository';
 import { CreateUserDto, UpdateUserDto, ResponseUserDto } from './dto';
 import { User } from '../domain/user';
-import { Roles } from "../../common/enums/roles.enum";
+import { Roles } from '../../common/enums/roles.enum';
 
 @Injectable()
 export class UserService {
@@ -94,9 +94,7 @@ export class UserService {
     }
   }
 
-  async findUserToAuth(
-    email: string,
-  ): Promise<{
+  async findUserToAuth(email: string): Promise<{
     email: string;
     password: string;
     id: string;
@@ -105,7 +103,12 @@ export class UserService {
     try {
       const user = await this.userRepository.findUserToAuth(email);
       return user
-        ? { email: user.email, password: user.password, id: user.id, roles: user.roles}
+        ? {
+            email: user.email,
+            password: user.password,
+            id: user.id,
+            roles: user.roles,
+          }
         : null;
     } catch (error) {
       console.error('Error finding user to auth', JSON.stringify(error));

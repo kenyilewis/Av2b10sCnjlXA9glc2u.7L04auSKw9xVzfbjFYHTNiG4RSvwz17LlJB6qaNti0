@@ -21,8 +21,8 @@ import {
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
 import { MongoIdPipe } from '../../common/validations/mongo-id.pipe';
-import { Roles } from "../../common/enums/roles.enum";
-import { RolesDecorator } from "../../auth/decorators/roles.decorator";
+import { Roles } from '../../common/enums/roles.enum';
+import { RolesDecorator } from '../../auth/decorators/roles.decorator';
 
 @ApiTags('users')
 @ApiBearerAuth('access-token')
