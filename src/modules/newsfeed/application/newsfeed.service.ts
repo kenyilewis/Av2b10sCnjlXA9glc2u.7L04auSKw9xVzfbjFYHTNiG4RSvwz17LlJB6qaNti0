@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
-import { CreateNewsfeedDto } from './dto/create-newsfeed.dto';
-import { UpdateNewsfeedDto } from './dto/update-newsfeed.dto';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { CreateNewsfeedDto } from './dto/';
+import { INewsfeedRepository } from '../domain/newsfeed.repository';
+import { Newsfeed } from '../domain/newsfeed';
 
 @Injectable()
 export class NewsfeedService {
-  create(createNewsfeedDto: CreateNewsfeedDto) {
-    return 'This action adds a new newsfeed';
+  constructor(
+    @Inject('NewsfeedRepository')
+    private readonly newsfeedRepository: INewsfeedRepository,
+  ) {}
+
+  async createNewsfeed(
+    createNewsfeedDto: CreateNewsfeedDto,
+    userId: string,
+  ): Promise<void> {
+    try {
+      const newsfeed = new Newsfeed({
+        ...createNewsfeedDto,
+        author: userId,
+      });
+      await this.create(newsfeed);
+    } catch (error) {
+      console.error('Error creating newsfeed', JSON.stringify(error));
+      throw (
+        error || new InternalServerErrorException('Error creating newsfeed')
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all newsfeed`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} newsfeed`;
-  }
-
-  update(id: number, updateNewsfeedDto: UpdateNewsfeedDto) {
-    return `This action updates a #${id} newsfeed`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} newsfeed`;
+  private async create(newsfeed: Newsfeed): Promise<Newsfeed> {
+    const newsfeedCreated = await this.newsfeedRepository.createNewsfeed(
+      newsfeed,
+    );
+    if (!newsfeedCreated) {
+      throw new InternalServerErrorException('Error creating newsfeed');
+    }
+    return newsfeedCreated;
   }
 }

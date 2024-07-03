@@ -2,9 +2,9 @@ export class Newsfeed {
   private readonly _id?: string;
   private _title: string;
   private _content: string;
-  private _url?: string;
-  private _image?: string;
-  private readonly _author: string;
+  private _url?: string | null;
+  private _image?: string | null;
+  private readonly _author: object | string;
   private readonly _createdAt?: Date;
   private _updatedAt?: Date;
   private _isDeleted?: boolean;
@@ -13,7 +13,7 @@ export class Newsfeed {
     id?: string;
     title: string;
     content: string;
-    author: string;
+    author: string | object;
     url?: string;
     image?: string;
     createdAt?: Date;
@@ -23,8 +23,8 @@ export class Newsfeed {
     this._id = newsfeed.id;
     this._title = newsfeed.title;
     this._content = newsfeed.content;
-    this._url = newsfeed.url ?? '';
-    this._image = newsfeed.image ?? '';
+    this._url = newsfeed.url ?? null;
+    this._image = newsfeed.image ?? null;
     this._author = newsfeed.author;
     this._createdAt = newsfeed.createdAt;
     this._updatedAt = newsfeed.updatedAt;
@@ -43,15 +43,15 @@ export class Newsfeed {
     return this._content;
   }
 
-  get author(): string {
+  get author(): string | object {
     return this._author;
   }
 
-  get image(): string {
+  get image(): string | null {
     return this._image;
   }
 
-  get url(): string {
+  get url(): string | null {
     return this._url;
   }
 

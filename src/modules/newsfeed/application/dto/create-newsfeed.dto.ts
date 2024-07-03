@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateNewsfeedDto {
   @ApiProperty({ description: 'the newsfeed title' })
@@ -14,9 +14,11 @@ export class CreateNewsfeedDto {
 
   @ApiProperty({ description: 'the newsfeed url', required: false })
   @IsString()
-  url: string;
+  @IsOptional()
+  url?: string;
 
-  @ApiProperty({ description: 'the newsfeed author', required: false })
+  @ApiProperty({ description: 'the newsfeed image', required: false })
   @IsString()
-  author: string;
+  @IsOptional()
+  image?: string;
 }

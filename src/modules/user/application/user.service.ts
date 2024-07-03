@@ -144,7 +144,6 @@ export class UserService {
   }
 
   private async validateUserOwnership(req: any, id: string): Promise<boolean> {
-    console.log('Validate user reqreq', req.roles.includes(Roles.ADMIN));
     if (
       (req.userId !== id.toString() && req.roles.includes(Roles.USER)) ||
       !req.roles.includes(Roles.ADMIN)

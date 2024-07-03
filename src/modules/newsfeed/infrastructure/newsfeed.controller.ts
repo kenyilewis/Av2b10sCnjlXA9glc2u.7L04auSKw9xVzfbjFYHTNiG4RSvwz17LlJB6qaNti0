@@ -1,42 +1,49 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { NewsfeedService } from '../application/newsfeed.service';
-import { CreateNewsfeedDto } from '../application/dto/create-newsfeed.dto';
-import { UpdateNewsfeedDto } from '../application/dto/update-newsfeed.dto';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../common/enums/roles.enum';
+import { RolesDecorator } from '../../auth/decorators/roles.decorator';
+import { NewsfeedService } from '../application/newsfeed.service';
+import {
+  CreateNewsfeedDto,
+  ResponseCreateNewsfeedDto,
+} from '../application/dto';
+
+@ApiTags('newsfeed')
+@ApiBearerAuth('access-token')
 @Controller('newsfeed')
 export class NewsfeedController {
   constructor(private readonly newsfeedService: NewsfeedService) {}
 
   @Post()
-  create(@Body() createNewsfeedDto: CreateNewsfeedDto) {
-    return this.newsfeedService.create(createNewsfeedDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.newsfeedService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.newsfeedService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNewsfeedDto: UpdateNewsfeedDto) {
-    return this.newsfeedService.update(+id, updateNewsfeedDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.newsfeedService.remove(+id);
+  @ApiOperation({ summary: 'Create newsfeed' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @RolesDecorator(Roles.ADMIN, Roles.USER)
+  async create(
+    @Body() createNewsfeedDto: CreateNewsfeedDto,
+    @Req() req: any,
+  ): Promise<ResponseCreateNewsfeedDto> {
+    try {
+      await this.newsfeedService.createNewsfeed(
+        createNewsfeedDto,
+        req.user.userId,
+      );
+      return {
+        message: 'Newsfeed created successfully',
+        statusCode: HttpStatus.CREATED,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }
