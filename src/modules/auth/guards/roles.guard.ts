@@ -27,15 +27,16 @@ export class RolesGuard implements CanActivate {
     }
 
     const decoded = this.jwtService.verify(token);
+    request.user = decoded;
     const hasRole = () =>
       decoded.roles.some((role: Roles) => roles.includes(role));
 
-    if (hasRole()) {
-      return true;
+    if (!hasRole()) {
+      throw new ForbiddenException(
+        'You do not have permission to perform this action',
+      );
     }
 
-    throw new ForbiddenException(
-      'You do not have permission to perform this action',
-    );
+    return true;
   }
 }

@@ -20,8 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JWTPayload) {
-    const { userId, email } = payload;
-    if (!userId || !email) {
+    const { userId, email, roles } = payload;
+    if (!userId || !email || !roles.length) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -30,6 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    return { userId, email };
+    return { userId, email, roles };
   }
 }

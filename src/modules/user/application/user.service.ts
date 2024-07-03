@@ -44,10 +44,11 @@ export class UserService {
   async updateUser(
     id: string,
     updateUserDto: UpdateUserDto,
+    reqUser: any,
   ): Promise<ResponseUserDto> {
     try {
+      await this.validateUserOwnership(reqUser, id);
       const user = await this.userExists(id);
-      // TODO: Refactor to add roles to user
       const { email, password, username } = updateUserDto;
       if (email) {
         await this.ensureUserDoesNotExist(email);
@@ -72,8 +73,9 @@ export class UserService {
     }
   }
 
-  async getUserById(id: string): Promise<ResponseUserDto> {
+  async getUserById(id: string, reqUser?: any): Promise<ResponseUserDto> {
     try {
+      reqUser && (await this.validateUserOwnership(reqUser, id));
       const user = await this.userExists(id);
 
       return this.toResponseDto(user);
@@ -83,8 +85,9 @@ export class UserService {
     }
   }
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteUser(id: string, reqUser: any): Promise<void> {
     try {
+      await this.validateUserOwnership(reqUser, id);
       const user = await this.userExists(id);
       user.delete();
       await this.userRepository.updateUser(user);
@@ -138,5 +141,16 @@ export class UserService {
     }
 
     return user;
+  }
+
+  private async validateUserOwnership(req: any, id: string): Promise<boolean> {
+    console.log('Validate user reqreq', req.roles.includes(Roles.ADMIN));
+    if (
+      (req.userId !== id.toString() && req.roles.includes(Roles.USER)) ||
+      !req.roles.includes(Roles.ADMIN)
+    ) {
+      throw new ConflictException('You shall not pass!  🧙🏼‍🐲🐉');
+    }
+    return true;
   }
 }
