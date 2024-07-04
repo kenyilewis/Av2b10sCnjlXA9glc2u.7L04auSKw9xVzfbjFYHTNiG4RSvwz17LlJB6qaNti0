@@ -1,0 +1,45 @@
+import { Model } from 'mongoose';
+
+export interface IPaginationOptions {
+  page?: number;
+  limit?: number;
+  sort?: any;
+  select?: string;
+}
+
+export class Pagination {
+  constructor(private readonly model: Model<any>) {}
+
+  async paginate(query: any, options: IPaginationOptions = {}) {
+    const page = Math.max(1, options.page || 1);
+    const limit = Math.max(1, options.limit || 10);
+    const skip = (page - 1) * limit;
+
+    try {
+      const totalCount = await this.model.countDocuments(query).exec();
+      const totalPages = Math.ceil(totalCount / limit);
+
+      let queryChain = this.model.find(query).skip(skip).limit(limit);
+
+      if (options.sort) {
+        queryChain = queryChain.sort(options.sort);
+      }
+
+      if (options.select) {
+        queryChain = queryChain.select(options.select);
+      }
+
+      const results = await queryChain.exec();
+
+      return {
+        results,
+        page,
+        limit,
+        totalCount,
+        totalPages,
+      };
+    } catch (error) {
+      throw new Error(`Pagination error: ${error.message}`);
+    }
+  }
+}

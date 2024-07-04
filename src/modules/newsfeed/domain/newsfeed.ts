@@ -1,5 +1,7 @@
+import { Types } from 'mongoose';
+
 export class Newsfeed {
-  private readonly _id?: string;
+  private readonly _id?: string | Types.ObjectId;
   private _title: string;
   private _content: string;
   private _url?: string | null;
@@ -31,7 +33,7 @@ export class Newsfeed {
     this._isDeleted = newsfeed.isDeleted ?? false;
   }
 
-  get id(): string {
+  get id(): string | Types.ObjectId {
     return this._id;
   }
 

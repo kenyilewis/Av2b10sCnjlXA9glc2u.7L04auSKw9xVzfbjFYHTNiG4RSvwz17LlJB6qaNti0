@@ -19,8 +19,8 @@ class NewsfeedDocument extends Document {
   @Prop({ default: false, index: true })
   isDeleted: boolean;
 
-  @Prop({ type: Types.ObjectId, ref: UserDocument.name, required: true })
-  author: UserDocument | Types.ObjectId | string;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  author: UserDocument | Types.ObjectId;
 }
 const NewsfeedSchema = SchemaFactory.createForClass(NewsfeedDocument);
 

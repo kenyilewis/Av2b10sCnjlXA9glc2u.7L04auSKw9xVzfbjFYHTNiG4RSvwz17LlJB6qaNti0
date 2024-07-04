@@ -8,12 +8,14 @@ import {
   NewsfeedDocument,
   NewsfeedSchema,
 } from './infrastructure/persistence/mongo-db/newsfeed.entity';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: NewsfeedDocument.name, schema: NewsfeedSchema },
     ]),
+    UserModule,
   ],
   controllers: [NewsfeedController],
   providers: [
