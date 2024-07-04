@@ -1,7 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { ScraperService } from './scraper.service';
+
+import { ScraperService } from '../application/scraper.service';
 
 @Controller('scraper')
 export class ScraperController {
   constructor(private readonly scraperService: ScraperService) {}
+
+  // TODO: Implement the controller method to test the scraper :D
 }
