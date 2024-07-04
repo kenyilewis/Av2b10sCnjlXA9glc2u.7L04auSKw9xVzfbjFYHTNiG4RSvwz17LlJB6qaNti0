@@ -40,7 +40,7 @@ export class UserController {
       return await this.userService.createUser(createUserDto);
     } catch (error) {
       throw new HttpException(
-        error.message,
+        error.response,
         error.status || HttpStatus.BAD_REQUEST,
       );
     }
@@ -59,7 +59,7 @@ export class UserController {
       return await this.userService.updateUser(id, updateUserDto, req.user);
     } catch (error) {
       throw new HttpException(
-        error.message,
+        error.response,
         error.status || HttpStatus.BAD_REQUEST,
       );
     }
@@ -77,7 +77,7 @@ export class UserController {
       return await this.userService.getUserById(id, req.user);
     } catch (error) {
       throw new HttpException(
-        error.message,
+        error.response,
         error.status || HttpStatus.NOT_FOUND,
       );
     }
@@ -96,7 +96,7 @@ export class UserController {
       return { message: 'User deleted successfully' };
     } catch (error) {
       throw new HttpException(
-        error.message,
+        error.response,
         error.status || HttpStatus.NOT_FOUND,
       );
     }

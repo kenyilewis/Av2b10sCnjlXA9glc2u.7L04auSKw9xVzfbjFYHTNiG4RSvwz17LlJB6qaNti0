@@ -152,6 +152,6 @@ export class UserService {
       return true;
     }
 
-    throw new UnauthorizedException('You shall not pass!  🧙🏼‍🐲🐉');
+    throw new UnauthorizedException('You shall not pass!🧙🏼‍🐲🐉');
   }
 }

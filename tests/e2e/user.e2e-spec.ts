@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as request from 'supertest';
@@ -13,6 +13,7 @@ describe('UserController (e2e)', () => {
   let authToken: string;
   let adminToken: string;
   let userId: string;
+  let adminId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -66,7 +67,7 @@ describe('UserController (e2e)', () => {
       .post('/auth/login')
       .send({ email: admin.email, password: admin.password })
       .expect(201);
-
+    adminId = adminLoginResponse.body.id;
     adminToken = adminLoginResponse.body.accessToken;
   });
 
@@ -78,7 +79,7 @@ describe('UserController (e2e)', () => {
     await request(app.getHttpServer())
       .get(`/users/${userId}`)
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .then((response) => {
         expect(response.body).toHaveProperty('id', userId);
       });
@@ -94,7 +95,7 @@ describe('UserController (e2e)', () => {
       .put(`/users/${userId}`)
       .set('Authorization', `Bearer ${authToken}`)
       .send(updateUserDto)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .then((response) => {
         expect(response.body).toHaveProperty('id', userId);
         expect(response.body).toHaveProperty('email', updateUserDto.email);
@@ -114,7 +115,7 @@ describe('UserController (e2e)', () => {
       .put(`/users/${userId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send(updateUserDto)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .then((response) => {
         expect(response.body).toHaveProperty('id', userId);
         expect(response.body).toHaveProperty('email', updateUserDto.email);
@@ -122,6 +123,16 @@ describe('UserController (e2e)', () => {
           'username',
           updateUserDto.username,
         );
+      });
+  });
+
+  it('/users/:id (GET) - fail get user by id (as user)', async () => {
+    await request(app.getHttpServer())
+      .get(`/users/${adminId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(HttpStatus.UNAUTHORIZED)
+      .then((response) => {
+        expect(response.body.message).toEqual('You shall not pass!🧙🏼‍🐲🐉');
       });
   });
 });
