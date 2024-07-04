@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
@@ -145,11 +146,12 @@ export class UserService {
 
   private async validateUserOwnership(req: any, id: string): Promise<boolean> {
     if (
-      (req.userId !== id.toString() && req.roles.includes(Roles.USER)) ||
-      !req.roles.includes(Roles.ADMIN)
+      req.roles.includes(Roles.ADMIN) ||
+      (req.userId === id.toString() && req.roles.includes(Roles.USER))
     ) {
-      throw new ConflictException('You shall not pass!  🧙🏼‍🐲🐉');
+      return true;
     }
-    return true;
+
+    throw new UnauthorizedException('You shall not pass!  🧙🏼‍🐲🐉');
   }
 }

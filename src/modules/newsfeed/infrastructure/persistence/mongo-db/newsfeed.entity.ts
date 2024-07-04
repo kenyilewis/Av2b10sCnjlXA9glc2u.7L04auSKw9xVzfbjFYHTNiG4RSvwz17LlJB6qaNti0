@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { UserDocument } from 'src/modules/user/infrastructure/persistence/mongo-db/user.entity';
+import { UserDocument } from '../../../../user/infrastructure/persistence/mongo-db/user.entity';
 
 @Schema({ timestamps: true, collection: 'newsfeed' })
 class NewsfeedDocument extends Document {
