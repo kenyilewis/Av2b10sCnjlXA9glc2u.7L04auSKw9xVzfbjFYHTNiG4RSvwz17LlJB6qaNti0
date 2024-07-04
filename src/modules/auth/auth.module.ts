@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -8,12 +8,13 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { UserService } from '../user/application/user.service';
-import { UserOdmRepository } from '../user/infrastructure/persistence/user.odm-repository';
+import { UserRepository } from '../user/infrastructure/persistence/mongo-db/user.repository';
 import {
   UserDocument,
   UserSchema,
-} from '../user/infrastructure/persistence/user.odm-entity';
+} from '../user/infrastructure/persistence/mongo-db/user.entity';
 
+@Global()
 @Module({
   imports: [
     ConfigModule,
@@ -36,7 +37,7 @@ import {
     AuthService,
     JwtStrategy,
     UserService,
-    { provide: 'UserRepository', useClass: UserOdmRepository },
+    { provide: 'UserRepository', useClass: UserRepository },
   ],
   controllers: [AuthController],
   exports: [JwtModule],
