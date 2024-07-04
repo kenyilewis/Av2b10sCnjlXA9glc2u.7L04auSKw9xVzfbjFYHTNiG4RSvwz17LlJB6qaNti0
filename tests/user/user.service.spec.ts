@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from '../../src/modules/user/application/user.service';
@@ -54,7 +54,7 @@ describe('UserService', () => {
         new User({
           ...createUserDto,
           id: '66804f0ad7b7ccf5af91c2ab',
-          password: await bcrypt.hash('123456', 10),
+          password: bcrypt.hashSync('123456', 10),
           roles: [Roles.USER],
         }),
       );
@@ -76,7 +76,7 @@ describe('UserService', () => {
         new User({
           ...createUserDto,
           id: '66804f0ad7b7ccf5af91c2ab',
-          password: await bcrypt.hash('123456', 10),
+          password: bcrypt.hashSync('123456', 10),
           roles: [Roles.USER],
         }),
       );
@@ -88,7 +88,6 @@ describe('UserService', () => {
     });
   });
 
-
   describe('updateUser', () => {
     it('should throw a not found exception if user does not exist', async () => {
       const updateUserDto: UpdateUserDto = {
@@ -97,10 +96,15 @@ describe('UserService', () => {
         username: 'updateduser',
       };
 
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
       await expect(
-        service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto),
+        service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto, reqUser),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -115,21 +119,35 @@ describe('UserService', () => {
         password: '123456',
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ab',
+        roles: [Roles.ADMIN],
       });
 
-      const newUser =  {
+      const newUser = new User({
         email: 'updated@test.com',
         password: '12345678',
         username: 'updateduser',
         id: '66804f0ad7b7ccf5af91c2ab',
-      }
+
+      });
+
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
       jest.spyOn(repository, 'findById').mockResolvedValue(existingUser);
-      jest.spyOn(repository, 'updateUser').mockResolvedValue(new User(newUser));
+      jest.spyOn(repository, 'updateUser').mockResolvedValue(newUser);
 
-      const result = await service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto);
+      const result = await service.updateUser(
+        '66804f0ad7b7ccf5af91c2ab',
+        updateUserDto,
+        reqUser,
+      );
       expect(result).toEqual(
-        expect.objectContaining({ email: 'updated@test.com', username: 'updateduser' }),
+        expect.objectContaining({
+          email: 'updated@test.com',
+          username: 'updateduser',
+        }),
       );
     });
   });
@@ -149,8 +167,12 @@ describe('UserService', () => {
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ac',
         password: '123456',
-      }
-      jest.spyOn(repository, 'findById').mockResolvedValue(new User(existingUser));
+        roles: [Roles.USER],
+      };
+
+      jest
+        .spyOn(repository, 'findById')
+        .mockResolvedValue(new User(existingUser));
 
       const result = await service.getUserById('66804f0ad7b7ccf5af91c2ac');
       delete existingUser.password;
@@ -160,10 +182,15 @@ describe('UserService', () => {
 
   describe('deleteUser', () => {
     it('should throw a not found exception if user does not exist', async () => {
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
       await expect(
-        service.deleteUser('66804f0ad7b7ccf5af91c2ab'),
+        service.deleteUser('66804f0ad7b7ccf5af91c2ab', reqUser),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -174,13 +201,17 @@ describe('UserService', () => {
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ab',
       });
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
       jest.spyOn(repository, 'findById').mockResolvedValue(existingUser);
       existingUser.delete();
       jest.spyOn(repository, 'updateUser').mockResolvedValue(existingUser);
 
       await expect(
-        service.deleteUser('66804f0ad7b7ccf5af91c2ab'),
+        service.deleteUser('66804f0ad7b7ccf5af91c2ab', reqUser),
       ).resolves.toBeUndefined();
     });
   });

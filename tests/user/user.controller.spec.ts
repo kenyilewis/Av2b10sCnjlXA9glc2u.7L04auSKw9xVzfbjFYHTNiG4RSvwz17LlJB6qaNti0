@@ -1,10 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
 import { UserController } from '../../src/modules/user/infrastructure/user.controller';
 import { UserService } from '../../src/modules/user/application/user.service';
-import { CreateUserDto, UpdateUserDto, ResponseUserDto } from '../../src/modules/user/application/dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ResponseUserDto,
+} from '../../src/modules/user/application/dto';
 import { RolesGuard } from '../../src/modules/auth/guards/roles.guard';
-import { Reflector } from '@nestjs/core';
+import { Roles } from '../../src/modules/common/enums/roles.enum';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -23,17 +30,8 @@ describe('UserController', () => {
             deleteUser: jest.fn(),
           },
         },
-        {
-          provide: JwtService,
-          useValue: {
-            sign: jest.fn().mockReturnValue('mockToken'),
-            verify: jest.fn(),
-          },
-        },
-        {
-          provide: Reflector,
-          useValue: {},
-        },
+        JwtService,
+        Reflector,
         RolesGuard,
       ],
     }).compile();
@@ -57,7 +55,9 @@ describe('UserController', () => {
         id: '66804f0ad7b7ccf5af91c2ab',
         email: 'test@test.com',
         username: 'testuser',
+        roles: [Roles.USER],
       };
+
       jest.spyOn(service, 'createUser').mockResolvedValue(responseUserDto);
 
       const result = await controller.createUser(createUserDto);
@@ -70,7 +70,12 @@ describe('UserController', () => {
         password: '123456',
         username: 'testuser',
       };
-      jest.spyOn(service, 'createUser').mockRejectedValue(new Error('Error creating user'));
+
+      jest
+        .spyOn(service, 'createUser')
+        .mockRejectedValue(
+          new HttpException('Error creating user', HttpStatus.BAD_REQUEST),
+        );
 
       await expect(controller.createUser(createUserDto)).rejects.toThrow(
         'Error creating user',
@@ -89,10 +94,20 @@ describe('UserController', () => {
         id: '66804f0ad7b7ccf5af91c2ab',
         email: 'updated@test.com',
         username: 'updateduser',
+        roles: [Roles.USER],
       };
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(service, 'updateUser').mockResolvedValue(responseUserDto);
 
-      const result = await controller.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto);
+      const result = await controller.updateUser(
+        '66804f0ad7b7ccf5af91c2ab',
+        updateUserDto,
+        reqUser,
+      );
       expect(result).toEqual(responseUserDto);
     });
 
@@ -102,11 +117,24 @@ describe('UserController', () => {
         password: '12345678',
         username: 'updateduser',
       };
-      jest.spyOn(service, 'updateUser').mockRejectedValue(new Error('Error updating user'));
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
-      await expect(controller.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto)).rejects.toThrow(
-        'Error updating user',
-      );
+      jest
+        .spyOn(service, 'updateUser')
+        .mockRejectedValue(
+          new HttpException('Error updating user', HttpStatus.BAD_REQUEST),
+        );
+
+      await expect(
+        controller.updateUser(
+          '66804f0ad7b7ccf5af91c2ab',
+          updateUserDto,
+          reqUser,
+        ),
+      ).rejects.toThrow('Error updating user');
     });
   });
 
@@ -116,36 +144,71 @@ describe('UserController', () => {
         id: '66804f0ad7b7ccf5af91c2ab',
         email: 'test@test.com',
         username: 'testuser',
+        roles: [Roles.USER],
       };
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(service, 'getUserById').mockResolvedValue(responseUserDto);
 
-      const result = await controller.getUserById('66804f0ad7b7ccf5af91c2ab');
+      const result = await controller.getUserById(
+        '66804f0ad7b7ccf5af91c2ab',
+        reqUser,
+      );
       expect(result).toEqual(responseUserDto);
     });
 
     it('should throw an error if user is not found', async () => {
-      jest.spyOn(service, 'getUserById').mockRejectedValue(new Error('User not found'));
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
-      await expect(controller.getUserById('66804f0ad7b7ccf5af91c2ab')).rejects.toThrow(
-        'User not found',
-      );
+      jest
+        .spyOn(service, 'getUserById')
+        .mockRejectedValue(
+          new HttpException('User not found', HttpStatus.BAD_REQUEST),
+        );
+
+      await expect(
+        controller.getUserById('66804f0ad7b7ccf5af91c2ab', reqUser),
+      ).rejects.toThrow('User not found');
     });
   });
 
   describe('deleteUser', () => {
     it('should delete a user', async () => {
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(service, 'deleteUser').mockResolvedValue(undefined);
 
-      const result = await controller.deleteUser('66804f0ad7b7ccf5af91c2ab');
+      const result = await controller.deleteUser(
+        '66804f0ad7b7ccf5af91c2ab',
+        reqUser,
+      );
       expect(result).toEqual({ message: 'User deleted successfully' });
     });
 
     it('should throw an error if user deletion fails', async () => {
-      jest.spyOn(service, 'deleteUser').mockRejectedValue(new Error('Error deleting user'));
+      const reqUser = {
+        roles: [Roles.USER],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
-      await expect(controller.deleteUser('66804f0ad7b7ccf5af91c2ab')).rejects.toThrow(
-        'Error deleting user',
-      );
+      jest
+        .spyOn(service, 'deleteUser')
+        .mockRejectedValue(
+          new HttpException('Error deleting user', HttpStatus.BAD_REQUEST),
+        );
+
+      await expect(
+        controller.deleteUser('66804f0ad7b7ccf5af91c2ab', reqUser),
+      ).rejects.toThrow('Error deleting user');
     });
   });
 });
