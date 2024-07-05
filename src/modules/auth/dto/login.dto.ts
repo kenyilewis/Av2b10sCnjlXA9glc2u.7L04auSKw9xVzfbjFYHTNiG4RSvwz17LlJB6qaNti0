@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Roles } from "../../common/enums/roles.enum";
+import { Roles } from '../../common/enums/roles.enum';
 
 export class LoginDto {
   @ApiProperty({ description: 'the user email' })
@@ -18,5 +18,5 @@ export class LoginDto {
 export class JWTPayload {
   userId: string;
   email: string;
-  roles: Roles[]
+  roles: Roles[];
 }

@@ -3,9 +3,14 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule, DatabaseModule, AuthModule } from '../index';
 import { MorganMiddleware } from '../middleware/logger.middleware';
 import appConfig from '../config/config';
+import {
+  UserModule,
+  DatabaseModule,
+  AuthModule,
+  NewsfeedModule,
+} from '../index';
 
 @Module({
   imports: [
@@ -16,6 +21,7 @@ import appConfig from '../config/config';
     DatabaseModule,
     UserModule,
     AuthModule,
+    NewsfeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
