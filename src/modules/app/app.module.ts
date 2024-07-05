@@ -10,7 +10,8 @@ import {
   DatabaseModule,
   AuthModule,
   NewsfeedModule,
-} from '../index';
+  ScraperModule,
+} from "../index";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import {
     UserModule,
     AuthModule,
     NewsfeedModule,
+    ScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService],

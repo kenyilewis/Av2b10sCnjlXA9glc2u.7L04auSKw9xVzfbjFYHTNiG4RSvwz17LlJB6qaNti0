@@ -22,6 +22,6 @@ import { UserModule } from '../user/user.module';
     NewsfeedService,
     { provide: 'NewsfeedRepository', useClass: NewsfeedRepository },
   ],
-  exports: [NewsfeedService],
+  exports: ['NewsfeedRepository', NewsfeedDocument],
 })
 export class NewsfeedModule {}

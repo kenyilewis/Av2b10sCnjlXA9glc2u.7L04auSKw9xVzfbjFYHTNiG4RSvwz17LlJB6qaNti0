@@ -3,6 +3,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
+import { NewsfeedRepository } from '../../newsfeed/infrastructure/persistence/mongo-db/newsfeed.repository';
+import { newsfeedCollect } from './utils';
+
 @Injectable()
 export class ScraperService {
   constructor(
@@ -14,35 +17,41 @@ export class ScraperService {
 
   @Cron(CronExpression.EVERY_HOUR)
   handleCron() {
-    const elPaisUrl = 'https://elpais.com/';
-    const elMundoUrl = 'https://www.elmundo.es/';
-    const urlsFeeds = [elPaisUrl, elMundoUrl];
-    this.logger.debug('Running the scraper job');
-    this.scrapeNews(urlsFeeds);
+    const elPaisUrl = 'https://elpais.com';
+    const elMundoUrl = 'https://elmundo.es';
+    const urlsFeeds = [elMundoUrl];
+    this.logger.debug('Running the scraper job :D');
+
+    this.scrapeNews(urlsFeeds).then((response) => {
+      this.logger.debug('Scraper job finished <3', JSON.stringify(response));
+    }).catch((error) => {
+      this.logger.error('Error scraping news', error);
+    });
   }
 
   async scrapeNews(urlsFeeds: Array<string>): Promise<void> {
     const data = await Promise.all(
-      urlsFeeds.map((url) => this.scrapeFeed(url)),
+      urlsFeeds.map((url) => (this.scrapeNewsfeed(url))),
     );
 
-    const feeds = data.flat();
-    this.logger.log(`Scraped ${feeds.length} feeds`);
+    const newsfeeds = data.flat();
+    this.logger.log(`Scraped ${newsfeeds.length} news`);
 
-   // TODO: Save the feeds in the database
+    await this.newsfeedRepository.createNewsfeedList(newsfeeds);
   }
 
-  private async scrapeFeed(url: string): Promise<any[]> {
-    const { data } = await axios.get(url);
+  private async scrapeNewsfeed(newsfeedUrl: string, options?): Promise<any[]> {
+    const { data } = await axios.get(newsfeedUrl);
     const $ = cheerio.load(data);
     const news = [];
 
-    $('.headline').each((index, element) => {
-      if (index < 5) {
-        const title = $(element).text().trim();
-        const link = $(element).find('a').attr('href');
-        news.push({ title, link, source: 'El País' });
+    // @ts-ignore
+    $('article').each((index, element) => {
+        const newsfeed = newsfeedCollect(index, element, newsfeedUrl, $);
+        if (newsfeed) {
+          news.push(newsfeed);
       }
+        return news;
     });
 
     return news;
