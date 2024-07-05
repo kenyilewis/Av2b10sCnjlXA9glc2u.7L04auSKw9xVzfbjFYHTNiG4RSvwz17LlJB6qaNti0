@@ -67,12 +67,12 @@ export class NewsfeedService {
   async findOneNewsfeed(
     id: string,
     authorId: string,
-  ): Promise<ResponseNewsfeedDto> {
+  ): Promise<ResponseNewsfeedDto | null> {
     try {
       await this.userService.getUserById(authorId);
       const response: Newsfeed = await this.existingNewsfeed(id);
 
-      return this.toResponseDto(response);
+      return response ? this.toResponseDto(response) : null;
     } catch (error) {
       console.error('Error getting newsfeed', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error getting newsfeed');
@@ -88,7 +88,7 @@ export class NewsfeedService {
       await this.userService.getUserById(authorId);
       const existingNewsfeed = await this.existingNewsfeed(id);
       const { title, content, url, image } = updateNewsfeedDto;
-
+      // TODO Validate if the author is the same as the author of the newsfeed
       title && existingNewsfeed.updateTitle(title);
       content && existingNewsfeed.updateContent(content);
       url && existingNewsfeed.updateUrl(url);
@@ -107,6 +107,7 @@ export class NewsfeedService {
   }
 
   async deleteNewsfeed(id: string, authorId: string): Promise<void> {
+    // TODO Validate if the author is the same as the author of the newsfeed
     try {
       await this.userService.getUserById(authorId);
       const newsfeed = await this.existingNewsfeed(id);

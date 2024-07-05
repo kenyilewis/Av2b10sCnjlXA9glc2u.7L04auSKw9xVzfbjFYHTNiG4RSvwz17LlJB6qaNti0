@@ -8,7 +8,7 @@ export interface INewsfeedRepository {
     populateData?: any,
   ): Promise<object>;
   createNewsfeed(newsfeed: Newsfeed): Promise<Newsfeed>;
-  findOneNewsfeed(id: string | Types.ObjectId): Promise<Newsfeed>;
+  findOneNewsfeed(id: string | Types.ObjectId): Promise<Newsfeed | null>;
   updateNewsfeed(newsfeed: Newsfeed): Promise<Newsfeed>;
   deleteNewsfeed(newsfeed: Newsfeed): Promise<void>;
 }
