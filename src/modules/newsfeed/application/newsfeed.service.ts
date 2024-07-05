@@ -69,8 +69,6 @@ export class NewsfeedService {
     authorId: string,
   ): Promise<ResponseNewsfeedDto> {
     try {
-      console.log('authorId', authorId);
-      console.log('id', id);
       await this.userService.getUserById(authorId);
       const response: Newsfeed = await this.existingNewsfeed(id);
 
@@ -87,9 +85,6 @@ export class NewsfeedService {
     authorId: string,
   ): Promise<ResponseNewsfeedDto> {
     try {
-      console.log('authorId', authorId);
-      console.log('id', id);
-      console.log('updateNewsfeedDto', updateNewsfeedDto);
       await this.userService.getUserById(authorId);
       const existingNewsfeed = await this.existingNewsfeed(id);
       const { title, content, url, image } = updateNewsfeedDto;
