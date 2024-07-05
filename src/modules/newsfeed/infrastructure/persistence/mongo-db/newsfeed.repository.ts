@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { Model, Types } from "mongoose";
+import { Model } from 'mongoose';
 
 import { INewsfeedRepository } from '../../../domain/newsfeed.repository';
 import { NewsfeedDocument } from './newsfeed.entity';
@@ -26,22 +26,20 @@ export class NewsfeedRepository implements INewsfeedRepository {
     return this.toDomain(savedNewsfeed);
   }
 
-  async findAllNewsfeed(query: any, options: any): Promise<any> {
-    const response = await this.pagination.paginate(query, options);
-    const newsfeeds = await Promise.all(
-      response.results.map((newsfeed) =>
-        newsfeed.populate('author').execPopulate(),
-      ),
-    );
-
-    return {
-      ...response,
-      results: newsfeeds,
-    };
+  async findAllNewsfeed(
+    query: any,
+    options: any,
+    populateData?: any,
+  ): Promise<any> {
+    return this.pagination.paginate(query, options, populateData);
   }
 
   async findOneNewsfeed(id: string): Promise<Newsfeed | null> {
-    const newsfeed = await this.newsfeedModel.findOne({ id }).exec();
+    const newsfeed = await this.newsfeedModel
+      .findById(id)
+      .populate('author', 'username email _id')
+      .exec();
+
     return newsfeed ? this.toDomain(newsfeed) : null;
   }
 
@@ -51,11 +49,19 @@ export class NewsfeedRepository implements INewsfeedRepository {
         new: true,
       })
       .exec();
+
     return this.toDomain(updatedNewsfeed);
   }
 
-  async deleteNewsfeed(newsfeed): Promise<void> {
-    await this.newsfeedModel.updateOne({ _id: newsfeed.id }, newsfeed).exec();
+  async deleteNewsfeed(newsfeed: Newsfeed): Promise<void> {
+    await this.newsfeedModel
+      .updateOne({ _id: newsfeed.id }, this.toPersistence(newsfeed))
+      .exec();
+  }
+
+  async createNewsfeedList(newsfeeds: Newsfeed[]): Promise<void> {
+    const list = newsfeeds.map((newsfeed) => this.toPersistence(newsfeed));
+    await this.newsfeedModel.insertMany(list);
   }
 
   private toDomain(newsfeedDocument: NewsfeedDocument): Newsfeed {

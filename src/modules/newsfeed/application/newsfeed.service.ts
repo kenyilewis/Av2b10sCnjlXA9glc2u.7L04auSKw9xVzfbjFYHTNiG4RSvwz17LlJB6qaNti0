@@ -46,7 +46,16 @@ export class NewsfeedService {
         isDeleted: false,
       };
 
-      return this.newsfeedRepository.findAllNewsfeed(query, options);
+      const populateData = {
+        propName: 'author',
+        props: 'username email _id',
+      };
+
+      return this.newsfeedRepository.findAllNewsfeed(
+        query,
+        options,
+        populateData,
+      );
     } catch (error) {
       console.error('Error getting newsfeeds', JSON.stringify(error));
       throw (
@@ -65,7 +74,7 @@ export class NewsfeedService {
       await this.userService.getUserById(authorId);
       const response: Newsfeed = await this.existingNewsfeed(id);
 
-      return new ResponseNewsfeedDto(response);
+      return this.toResponseDto(response);
     } catch (error) {
       console.error('Error getting newsfeed', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error getting newsfeed');
@@ -76,18 +85,24 @@ export class NewsfeedService {
     id: string,
     updateNewsfeedDto: UpdateNewsfeedDto,
     authorId: string,
-  ): Promise<Newsfeed> {
+  ): Promise<ResponseNewsfeedDto> {
     try {
+      console.log('authorId', authorId);
+      console.log('id', id);
+      console.log('updateNewsfeedDto', updateNewsfeedDto);
       await this.userService.getUserById(authorId);
-      const existingNewfeed = await this.existingNewsfeed(id);
+      const existingNewsfeed = await this.existingNewsfeed(id);
       const { title, content, url, image } = updateNewsfeedDto;
 
-      title && existingNewfeed.updateTitle(title);
-      content && existingNewfeed.updateContent(content);
-      url && existingNewfeed.updateUrl(url);
-      image && existingNewfeed.updateImage(image);
+      title && existingNewsfeed.updateTitle(title);
+      content && existingNewsfeed.updateContent(content);
+      url && existingNewsfeed.updateUrl(url);
+      image && existingNewsfeed.updateImage(image);
+      const response = await this.newsfeedRepository.updateNewsfeed(
+        existingNewsfeed,
+      );
 
-      return this.newsfeedRepository.updateNewsfeed(existingNewfeed);
+      return this.toResponseDto(response);
     } catch (error) {
       console.error('Error updating newsfeed', JSON.stringify(error));
       throw (
@@ -101,7 +116,7 @@ export class NewsfeedService {
       await this.userService.getUserById(authorId);
       const newsfeed = await this.existingNewsfeed(id);
       newsfeed.delete();
-      this.newsfeedRepository.deleteNewsfeed(newsfeed);
+      await this.newsfeedRepository.deleteNewsfeed(newsfeed);
     } catch (error) {
       console.error('Error deleting newsfeed', JSON.stringify(error));
       throw (
@@ -126,5 +141,9 @@ export class NewsfeedService {
       throw new InternalServerErrorException('Newsfeed not found');
     }
     return newsfeed;
+  }
+
+  private toResponseDto(newsfeed: Newsfeed): ResponseNewsfeedDto {
+    return new ResponseNewsfeedDto(newsfeed);
   }
 }

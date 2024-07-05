@@ -24,10 +24,30 @@ export class ResponseNewsfeedDto {
   }
 }
 
-export class ResponseNewsfeeds {
+// TODO implement the ResponseNewsfeedListDto
+export class ResponseNewsfeedListDto {
   results: ResponseNewsfeedDto[];
   total: number;
   page: number;
   limit: number;
-  statusCode: number;
+  totalCount: number;
+  totalPages: number;
+
+  constructor(response: {
+    results: Newsfeed[];
+    total: number;
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+  }) {
+    this.results = response.results.map(
+      (newsfeed) => new ResponseNewsfeedDto(newsfeed),
+    );
+    this.total = response.total;
+    this.page = response.page;
+    this.limit = response.limit;
+    this.totalCount = response.totalCount;
+    this.totalPages = response.totalPages;
+  }
 }

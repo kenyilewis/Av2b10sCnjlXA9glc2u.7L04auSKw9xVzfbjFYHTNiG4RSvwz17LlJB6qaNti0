@@ -78,23 +78,10 @@ export class UserService {
     try {
       reqUser && (await this.validateUserOwnership(reqUser, id));
       const user = await this.userExists(id);
-
       return this.toResponseDto(user);
     } catch (error) {
       console.error('Error getting user', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error getting user');
-    }
-  }
-
-  async deleteUser(id: string, reqUser: any): Promise<void> {
-    try {
-      await this.validateUserOwnership(reqUser, id);
-      const user = await this.userExists(id);
-      user.delete();
-      await this.userRepository.updateUser(user);
-    } catch (error) {
-      console.error('Error deleting user', JSON.stringify(error));
-      throw error || new InternalServerErrorException('Error deleting user');
     }
   }
 
@@ -117,6 +104,18 @@ export class UserService {
     } catch (error) {
       console.error('Error finding user to auth', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error finding user');
+    }
+  }
+
+  async deleteUser(id: string, reqUser: any): Promise<void> {
+    try {
+      await this.validateUserOwnership(reqUser, id);
+      const user = await this.userExists(id);
+      user.delete();
+      await this.userRepository.updateUser(user);
+    } catch (error) {
+      console.error('Error deleting user', JSON.stringify(error));
+      throw error || new InternalServerErrorException('Error deleting user');
     }
   }
 

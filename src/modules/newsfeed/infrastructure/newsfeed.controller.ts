@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   UseGuards,
-  HttpException,
   HttpStatus,
   Req,
   Get,
@@ -74,7 +73,6 @@ export class NewsfeedController {
     @Param('id', MongoIdPipe) id: string,
     @Req() req: any,
   ): Promise<ResponseNewsfeedDto> {
-    console.log('req.user.userId', req.user);
     return await this.newsfeedService.findOneNewsfeed(id, req.user.userId);
   }
 
@@ -90,7 +88,7 @@ export class NewsfeedController {
     return this.newsfeedService.updateNewsfeed(
       id,
       updateNewsfeedDto,
-      req.userId,
+      req.user.userId,
     );
   }
 

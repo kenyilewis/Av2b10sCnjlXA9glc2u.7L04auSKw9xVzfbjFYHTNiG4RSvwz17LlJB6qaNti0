@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { NewsfeedDocument } from "../../newsfeed/infrastructure/persistence/mongo-db/newsfeed.entity";
 
 export interface IPaginationOptions {
   page?: number;
@@ -10,7 +11,11 @@ export interface IPaginationOptions {
 export class Pagination {
   constructor(private readonly model: Model<any>) {}
 
-  async paginate(query: any, options: IPaginationOptions = {}) {
+  async paginate(
+    query: any,
+    options: IPaginationOptions = {},
+    populate?: { propName: string; props: string },
+  ) {
     const page = Math.max(1, options.page || 1);
     const limit = Math.max(1, options.limit || 10);
     const skip = (page - 1) * limit;
@@ -29,7 +34,10 @@ export class Pagination {
         queryChain = queryChain.select(options.select);
       }
 
-      const results = await queryChain.exec();
+      if (populate) {
+        queryChain = queryChain.populate(populate.propName, populate.props);
+      }
+      const results: NewsfeedDocument[] = await queryChain.exec();
 
       return {
         results,
