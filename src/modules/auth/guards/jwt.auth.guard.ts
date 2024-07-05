@@ -24,11 +24,23 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  private extractTokenFromHeader(request: { headers: { authorization: any; }; }): string | null {
+  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+    if (err || !user) {
+      throw err || new UnauthorizedException();
+    }
+    const request = context.switchToHttp().getRequest();
+    request.user = user;
+    return user;
+  }
+
+  private extractTokenFromHeader(request: {
+    headers: { authorization: string };
+  }): string | null {
     const authHeader = request.headers.authorization;
     if (!authHeader) {
       return null;
     }
+
     const [type, token] = authHeader.split(' ');
     return type === 'Bearer' ? token : null;
   }

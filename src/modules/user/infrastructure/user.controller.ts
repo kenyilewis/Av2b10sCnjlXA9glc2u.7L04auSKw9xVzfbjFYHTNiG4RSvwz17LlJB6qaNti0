@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -36,9 +37,12 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.createUser(createUserDto);
+      return await this.userService.createUser(createUserDto);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        error.response,
+        error.status || HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -49,11 +53,15 @@ export class UserController {
   async updateUser(
     @Param('id', MongoIdPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() req: any,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.updateUser(id, updateUserDto);
+      return await this.userService.updateUser(id, updateUserDto, req.user);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        error.response,
+        error.status || HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -63,11 +71,15 @@ export class UserController {
   @ApiOperation({ summary: 'Get a user by id' })
   async getUserById(
     @Param('id', MongoIdPipe) id: string,
+    @Req() req: any,
   ): Promise<ResponseUserDto> {
     try {
-      return this.userService.getUserById(id);
+      return await this.userService.getUserById(id, req.user);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        error.response,
+        error.status || HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -77,12 +89,16 @@ export class UserController {
   @ApiOperation({ summary: 'Delete a user' })
   async deleteUser(
     @Param('id', MongoIdPipe) id: string,
+    @Req() req: any,
   ): Promise<{ message: string }> {
     try {
-      await this.userService.deleteUser(id);
+      await this.userService.deleteUser(id, req.user);
       return { message: 'User deleted successfully' };
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        error.response,
+        error.status || HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

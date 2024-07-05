@@ -1,12 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from '../../src/modules/user/application/user.service';
-import { CreateUserDto, UpdateUserDto, ResponseUserDto } from "../../src/modules/user/application/dto";
+import {
+  CreateUserDto,
+  UpdateUserDto,
+} from '../../src/modules/user/application/dto';
 import { UserRepository } from '../../src/modules/user/infrastructure/persistence/mongo-db/user.repository';
 import { User } from '../../src/modules/user/domain/user';
-import { Roles } from "../../src/modules/common/enums/roles.enum";
+import { Roles } from '../../src/modules/common/enums/roles.enum';
 
 jest.mock('bcrypt');
 
@@ -46,14 +49,15 @@ describe('UserService', () => {
         password: '123456',
         username: 'user test',
       };
+
       jest.spyOn(repository, 'userEmailExists').mockResolvedValue(
         new User({
           ...createUserDto,
           id: '66804f0ad7b7ccf5af91c2ab',
-          password: await bcrypt.hash('123456', 10),
+          password: bcrypt.hashSync('123456', 10),
           roles: [Roles.USER],
-        }
-      ));
+        }),
+      );
 
       await expect(service.createUser(createUserDto)).rejects.toThrow(
         ConflictException,
@@ -72,7 +76,7 @@ describe('UserService', () => {
         new User({
           ...createUserDto,
           id: '66804f0ad7b7ccf5af91c2ab',
-          password: await bcrypt.hash('123456', 10),
+          password: bcrypt.hashSync('123456', 10),
           roles: [Roles.USER],
         }),
       );
@@ -84,7 +88,6 @@ describe('UserService', () => {
     });
   });
 
-
   describe('updateUser', () => {
     it('should throw a not found exception if user does not exist', async () => {
       const updateUserDto: UpdateUserDto = {
@@ -93,11 +96,16 @@ describe('UserService', () => {
         username: 'updateduser',
       };
 
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
-      await expect(service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto, reqUser),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should update and return a user', async () => {
@@ -111,21 +119,35 @@ describe('UserService', () => {
         password: '123456',
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ab',
+        roles: [Roles.ADMIN],
       });
 
-      const newUser =  {
+      const newUser = new User({
         email: 'updated@test.com',
         password: '12345678',
         username: 'updateduser',
         id: '66804f0ad7b7ccf5af91c2ab',
-      }
+
+      });
+
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
 
       jest.spyOn(repository, 'findById').mockResolvedValue(existingUser);
-      jest.spyOn(repository, 'updateUser').mockResolvedValue(new User(newUser));
+      jest.spyOn(repository, 'updateUser').mockResolvedValue(newUser);
 
-      const result = await service.updateUser('66804f0ad7b7ccf5af91c2ab', updateUserDto);
+      const result = await service.updateUser(
+        '66804f0ad7b7ccf5af91c2ab',
+        updateUserDto,
+        reqUser,
+      );
       expect(result).toEqual(
-        expect.objectContaining({ email: 'updated@test.com', username: 'updateduser' }),
+        expect.objectContaining({
+          email: 'updated@test.com',
+          username: 'updateduser',
+        }),
       );
     });
   });
@@ -134,9 +156,9 @@ describe('UserService', () => {
     it('should throw a not found exception if user does not exist', async () => {
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
-      await expect(service.getUserById('66804f0ad7b7ccf5af91c2ab')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.getUserById('66804f0ad7b7ccf5af91c2ab'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should return a user by ID', async () => {
@@ -145,8 +167,12 @@ describe('UserService', () => {
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ac',
         password: '123456',
-      }
-      jest.spyOn(repository, 'findById').mockResolvedValue(new User(existingUser));
+        roles: [Roles.USER],
+      };
+
+      jest
+        .spyOn(repository, 'findById')
+        .mockResolvedValue(new User(existingUser));
 
       const result = await service.getUserById('66804f0ad7b7ccf5af91c2ac');
       delete existingUser.password;
@@ -156,11 +182,16 @@ describe('UserService', () => {
 
   describe('deleteUser', () => {
     it('should throw a not found exception if user does not exist', async () => {
+      const reqUser = {
+        roles: [Roles.ADMIN],
+        id: '66804f0ad7b7ccf5af91c2ab',
+      };
+
       jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
-      await expect(service.deleteUser('66804f0ad7b7ccf5af91c2ab')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.deleteUser('66804f0ad7b7ccf5af91c2ab', reqUser),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should delete a user', async () => {
@@ -170,18 +201,18 @@ describe('UserService', () => {
         username: 'testuser',
         id: '66804f0ad7b7ccf5af91c2ab',
       });
-
-      const updatedUser = {
-        email: 'updateUser@email.com',
-        username: 'updateUser',
+      const reqUser = {
+        roles: [Roles.ADMIN],
         id: '66804f0ad7b7ccf5af91c2ab',
-        password: '1234536',
-      }
+      };
 
       jest.spyOn(repository, 'findById').mockResolvedValue(existingUser);
-      jest.spyOn(repository, 'updateUser').mockResolvedValue(new User(updatedUser));
+      existingUser.delete();
+      jest.spyOn(repository, 'updateUser').mockResolvedValue(existingUser);
 
-      await expect(service.deleteUser('66804f0ad7b7ccf5af91c2ab')).resolves.toBeUndefined();
+      await expect(
+        service.deleteUser('66804f0ad7b7ccf5af91c2ab', reqUser),
+      ).resolves.toBeUndefined();
     });
   });
 });

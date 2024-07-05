@@ -77,7 +77,7 @@ export class User {
     this._updatedAt = new Date();
   }
 
-  updateRoles(roles: Roles[]): void {  // Método para actualizar roles
+  updateRoles(roles: Roles[]): void {
     this._roles = roles;
     this._updatedAt = new Date();
   }

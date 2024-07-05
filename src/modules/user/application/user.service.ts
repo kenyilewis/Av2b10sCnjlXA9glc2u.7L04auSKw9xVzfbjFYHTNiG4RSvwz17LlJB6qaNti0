@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
@@ -44,10 +45,11 @@ export class UserService {
   async updateUser(
     id: string,
     updateUserDto: UpdateUserDto,
+    reqUser: any,
   ): Promise<ResponseUserDto> {
     try {
+      await this.validateUserOwnership(reqUser, id);
       const user = await this.userExists(id);
-      // TODO: Refactor to add roles to user
       const { email, password, username } = updateUserDto;
       if (email) {
         await this.ensureUserDoesNotExist(email);
@@ -72,25 +74,14 @@ export class UserService {
     }
   }
 
-  async getUserById(id: string): Promise<ResponseUserDto> {
+  async getUserById(id: string, reqUser?: any): Promise<ResponseUserDto> {
     try {
+      reqUser && (await this.validateUserOwnership(reqUser, id));
       const user = await this.userExists(id);
-
       return this.toResponseDto(user);
     } catch (error) {
       console.error('Error getting user', JSON.stringify(error));
       throw error || new InternalServerErrorException('Error getting user');
-    }
-  }
-
-  async deleteUser(id: string): Promise<void> {
-    try {
-      const user = await this.userExists(id);
-      user.delete();
-      await this.userRepository.updateUser(user);
-    } catch (error) {
-      console.error('Error deleting user', JSON.stringify(error));
-      throw error || new InternalServerErrorException('Error deleting user');
     }
   }
 
@@ -116,6 +107,18 @@ export class UserService {
     }
   }
 
+  async deleteUser(id: string, reqUser: any): Promise<void> {
+    try {
+      await this.validateUserOwnership(reqUser, id);
+      const user = await this.userExists(id);
+      user.delete();
+      await this.userRepository.updateUser(user);
+    } catch (error) {
+      console.error('Error deleting user', JSON.stringify(error));
+      throw error || new InternalServerErrorException('Error deleting user');
+    }
+  }
+
   private toResponseDto(user: User): ResponseUserDto {
     return new ResponseUserDto(user);
   }
@@ -138,5 +141,16 @@ export class UserService {
     }
 
     return user;
+  }
+
+  private async validateUserOwnership(req: any, id: string): Promise<boolean> {
+    if (
+      req.roles.includes(Roles.ADMIN) ||
+      (req.userId === id.toString() && req.roles.includes(Roles.USER))
+    ) {
+      return true;
+    }
+
+    throw new UnauthorizedException('You shall not pass!🧙🏼‍🐲🐉');
   }
 }
