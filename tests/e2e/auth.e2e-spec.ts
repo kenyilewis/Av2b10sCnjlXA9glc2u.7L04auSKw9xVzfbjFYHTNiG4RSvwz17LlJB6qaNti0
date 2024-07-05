@@ -71,7 +71,6 @@ describe('AuthController (e2e)', () => {
       .send(loginDto)
       .expect(HttpStatus.UNAUTHORIZED);
 
-    // Verifica que el mensaje de error sea el esperado
     expect(response.body.message).toEqual('Invalid credentials');
   });
 });

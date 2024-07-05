@@ -1,4 +1,4 @@
-import { Roles } from "../../common/enums/roles.enum";
+import { Roles } from '../../common/enums/roles.enum';
 
 export class User {
   private readonly _id?: string;
@@ -77,7 +77,7 @@ export class User {
     this._updatedAt = new Date();
   }
 
-  updateRoles(roles: Roles[]): void {  // Método para actualizar roles
+  updateRoles(roles: Roles[]): void {
     this._roles = roles;
     this._updatedAt = new Date();
   }

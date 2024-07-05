@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from '../user/application/user.service';
-import { JWTPayload, LoginDto } from "./dto/login.dto";
+import { JWTPayload, LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +24,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload: JWTPayload = { userId: user.id, email: user.email, roles: user.roles };
+    const payload: JWTPayload = {
+      userId: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
     return {
