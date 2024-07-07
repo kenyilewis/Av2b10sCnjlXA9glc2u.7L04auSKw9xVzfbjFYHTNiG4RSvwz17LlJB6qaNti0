@@ -1,0 +1,16 @@
+import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ScraperService } from './application/scraper.service';
+import { ScraperController } from './infrastructure/scraper.controller';
+import { NewsfeedRepository } from '../newsfeed/infrastructure/persistence/mongo-db/newsfeed.repository';
+import { NewsfeedModule } from '../newsfeed/newsfeed.module';
+
+@Module({
+  imports: [ScheduleModule.forRoot(), NewsfeedModule],
+  providers: [
+    { provide: 'NewsfeedRepository', useClass: NewsfeedRepository },
+    ScraperService,
+  ],
+  controllers: [ScraperController],
+})
+export class ScraperModule {}

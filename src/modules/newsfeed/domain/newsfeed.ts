@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 export class Newsfeed {
   private readonly _id?: string | Types.ObjectId;
   private _title: string;
-  private _content: string;
+  private _content?: string;
   private _url?: string | null;
   private _image?: string | null;
   private readonly _author: object | string;
@@ -14,7 +14,7 @@ export class Newsfeed {
   constructor(newsfeed: {
     id?: string;
     title: string;
-    content: string;
+    content?: string;
     author: string | object;
     url?: string;
     image?: string;

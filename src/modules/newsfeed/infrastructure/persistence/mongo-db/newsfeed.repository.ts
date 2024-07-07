@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { INewsfeedRepository } from '../../../domain/newsfeed.repository';
 import { NewsfeedDocument } from './newsfeed.entity';
@@ -35,10 +35,12 @@ export class NewsfeedRepository implements INewsfeedRepository {
   }
 
   async findOneNewsfeed(id: string): Promise<Newsfeed | null> {
-    const newsfeed = await this.newsfeedModel
-      .findById(id)
-      .populate('author', 'username email _id')
-      .exec();
+    const newsfeed = await this.newsfeedModel.findById(id).exec();
+
+    // @ts-ignore
+    if (Types.ObjectId.isValid(newsfeed?.author)) {
+      await newsfeed.populate('author', 'username email _id');
+    }
 
     return newsfeed ? this.toDomain(newsfeed) : null;
   }
@@ -59,9 +61,10 @@ export class NewsfeedRepository implements INewsfeedRepository {
       .exec();
   }
 
-  async createNewsfeedList(newsfeeds: Newsfeed[]): Promise<void> {
+  async createNewsfeedList(newsfeeds: Newsfeed[]): Promise<boolean> {
     const list = newsfeeds.map((newsfeed) => this.toPersistence(newsfeed));
     await this.newsfeedModel.insertMany(list);
+    return true;
   }
 
   private toDomain(newsfeedDocument: NewsfeedDocument): Newsfeed {

@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { NewsfeedDocument } from "../../newsfeed/infrastructure/persistence/mongo-db/newsfeed.entity";
 
 export interface IPaginationOptions {
@@ -34,10 +34,16 @@ export class Pagination {
         queryChain = queryChain.select(options.select);
       }
 
-      if (populate) {
-        queryChain = queryChain.populate(populate.propName, populate.props);
-      }
       const results: NewsfeedDocument[] = await queryChain.exec();
+
+      if (populate) {
+        results.map(async (result) => {
+          // @ts-ignore
+          if(Types.ObjectId.isValid(result?.author)) {
+            await result.populate(populate.propName, populate.props)
+          }
+        });
+      }
 
       return {
         results,

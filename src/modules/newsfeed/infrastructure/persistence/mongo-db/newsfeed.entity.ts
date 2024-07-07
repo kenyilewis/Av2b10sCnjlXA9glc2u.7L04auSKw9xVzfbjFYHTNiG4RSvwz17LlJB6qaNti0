@@ -7,8 +7,8 @@ class NewsfeedDocument extends Document {
   @Prop({ required: true, index: true, minlength: 3, maxlength: 255 })
   title: string;
 
-  @Prop({ required: true })
-  content: string;
+  @Prop({ required: false })
+  content?: string;
 
   @Prop()
   image?: string;
