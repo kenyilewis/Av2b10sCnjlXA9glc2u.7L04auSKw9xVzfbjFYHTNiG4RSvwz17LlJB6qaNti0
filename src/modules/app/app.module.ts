@@ -11,7 +11,7 @@ import {
   AuthModule,
   NewsfeedModule,
   ScraperModule,
-} from "../index";
+} from '../index';
 
 @Module({
   imports: [

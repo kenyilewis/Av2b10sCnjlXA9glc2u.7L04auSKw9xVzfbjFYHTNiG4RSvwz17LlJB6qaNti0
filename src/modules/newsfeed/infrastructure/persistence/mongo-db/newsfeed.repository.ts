@@ -35,12 +35,10 @@ export class NewsfeedRepository implements INewsfeedRepository {
   }
 
   async findOneNewsfeed(id: string): Promise<Newsfeed | null> {
-    let newsfeed = await this.newsfeedModel
-      .findById(id)
-      .exec();
+    const newsfeed = await this.newsfeedModel.findById(id).exec();
 
     // @ts-ignore
-    if(Types.ObjectId.isValid(newsfeed?.author) ) {
+    if (Types.ObjectId.isValid(newsfeed?.author)) {
       await newsfeed.populate('author', 'username email _id');
     }
 
@@ -63,9 +61,10 @@ export class NewsfeedRepository implements INewsfeedRepository {
       .exec();
   }
 
-  async createNewsfeedList(newsfeeds: Newsfeed[]): Promise<void> {
+  async createNewsfeedList(newsfeeds: Newsfeed[]): Promise<boolean> {
     const list = newsfeeds.map((newsfeed) => this.toPersistence(newsfeed));
     await this.newsfeedModel.insertMany(list);
+    return true;
   }
 
   private toDomain(newsfeedDocument: NewsfeedDocument): Newsfeed {

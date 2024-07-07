@@ -9,7 +9,7 @@ export class ResponseCreateNewsfeedDto {
 export class ResponseNewsfeedDto {
   id: string | Types.ObjectId;
   title: string;
-  content: string;
+  content?: string;
   author: string | object;
   url?: string;
   image?: string;
