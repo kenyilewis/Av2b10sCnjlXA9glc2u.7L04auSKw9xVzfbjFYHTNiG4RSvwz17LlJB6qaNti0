@@ -127,7 +127,6 @@ describe('UserService', () => {
         password: '12345678',
         username: 'updateduser',
         id: '66804f0ad7b7ccf5af91c2ab',
-
       });
 
       const reqUser = {
