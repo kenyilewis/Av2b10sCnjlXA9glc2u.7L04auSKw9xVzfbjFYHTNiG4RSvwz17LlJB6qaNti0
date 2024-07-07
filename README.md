@@ -33,7 +33,7 @@ Este proyecto es una API RESTful construida con NestJS, diseñada para manejar m
 
 ## Uso
 
-- **Documentación de la API**: Visita `http://localhost:8000/api` para ver la documentación generada por Swagger.
+- **Documentación de la API**: Visita `http://localhost:8000/docs` para ver la documentación generada por Swagger.
 
 ## Desarrollo
 
