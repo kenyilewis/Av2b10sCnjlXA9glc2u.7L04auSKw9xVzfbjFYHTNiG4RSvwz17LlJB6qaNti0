@@ -7,9 +7,8 @@ export class CreateNewsfeedDto {
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ description: 'the newsfeed content' })
+  @ApiProperty({ description: 'the newsfeed content', required: false })
   @IsString()
-  @IsNotEmpty()
   content: string;
 
   @ApiProperty({ description: 'the newsfeed url', required: false })

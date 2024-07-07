@@ -1,0 +1,24 @@
+services:
+  app:
+    container_name: av_challenge
+    build: .
+    ports:
+      - '8000:8000'
+    environment:
+      - NODE_ENV=development
+      - MONGO_URL=mongodb://mongo:27017/avantio_db
+      - JWT_SECRET=secret_phrase
+      - JWT_EXPIRES_IN=1h
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
