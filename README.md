@@ -5,7 +5,7 @@ Este proyecto es una API RESTful construida con NestJS, diseñada para manejar m
 ## Características
 
 - **NestJS**: Framework para construir aplicaciones escalables y mantenibles en Node.js.
-- **TypeORM**: ORM para manejar la persistencia de datos en PostgreSQL.
+- **Mongoose**: ODM para manejar la persistencia de datos en MongoDB.
 - **JWT**: Autenticación y autorización basada en tokens.
 - **Docker y Docker Compose**: Contenerización de la aplicación para un despliegue simplificado.
 - **Swagger**: Documentación de la API.
